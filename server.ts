@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 
 const todos = express();
 
-todos.get('/', (_, res) => {
+todos.get('/todos', (_, res) => {
   const data = JSON.parse(readFileSync(path.join(process.cwd(), 'data.json'), 'utf8'));
   res.json(data);
 })

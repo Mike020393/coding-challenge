@@ -13,48 +13,69 @@
           v-model="newTodo"
           class="py-2 px-2 text-black inline-block w-2/3"
         />
-        <button
-          class="w-1/3 border-black border-2 bg-yellow-500"
-          @click="addTodo">
+        <v-button
+          :onClick="addTodo"
+          :class="{ 'w-1/3 border-black border-2 bg-yellow-500': true }"
+        >
           Add Todo
-        </button>
+        </v-button>
       </div>
     </div>
     <div v-for="(todo, index) in todos" :key="todo.todo">
       <Todo
         :todoprop="todo"
         :todoindex="index"
-        @toggledone-index="setDone"/>
+        @toggledone-index="setDone"
+        @delete-index="deleteTodo"
+      />
     </div>
   </div>
 </template>
 
 <script>
-import api from './api';
-import Todo from './components/Todo';
+import api from "./api";
+import Todo from "./components/Todo";
+import Btn from "./components/Btn";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
     Todo,
+    "v-button": Btn,
   },
   data() {
     return {
-      newTodo: '',
+      newTodo: "",
       todos: [],
     };
   },
   async mounted() {
-    const todos = await api.loadTodos()
-    this.todos = todos.map((text) => ({todo: text, done: false}))
+    const todos = await api.loadTodos();
+    console.log("todos", todos);
+    this.todos = todos.map((todos) => ({
+      todo: todos.title,
+      done: todos.completed,
+    }));
   },
   methods: {
-    addTodo() {
-      this.todos.push({ todo: this.newTodo, done: false });
-      this.newTodo = '';
+    async addTodo() {
+      if (this.newTodo) {
+        var newTododata = {
+          title: this.newTodo,
+          completed: false,
+        };
+        await api.post("todos", newTododata);
+        this.todos.push({ todo: this.newTodo, done: false });
+        this.newTodo = "";
+      } else {
+        alert("Please enter a todo");
+      }
     },
     setDone(index) {
       this.todos[index].done = !this.todos[index].done;
+    },
+    deleteTodo(index) {
+      this.todos.splice(index, 1);
     },
   },
   computed: {
